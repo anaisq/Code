@@ -51,6 +51,7 @@ class baze_de_date{
         void afisare_varsta();
         int get_pers() {return nr_pers;}
         void set_pers(int n=0) {nr_pers=n;}
+        void spatiere();
 
 };
 
@@ -166,17 +167,10 @@ baze_de_date::baze_de_date(int n=0){
 
 void baze_de_date::afisare()
  {
-     char spatiu[30]="                             ";
      cout<<endl<<"In clasa baze de date se afla: "<<endl;
      cout<<"        NUME        "<<'\t'<<"AN NASTERE"<<'\t'<<"SEXUL"<<endl;
      cout<<"***************************************************"<<endl;
-     for(int i=0;i<nr_pers;i++)
-     {
-         if(strlen(a[i].name)<20)
-         {
-             int n=20-strlen(a[i].name);
-             strncat(a[i].name,spatiu,n);
-         }
+
          cout<<a[i];
      }
      cout<<endl<<"***************************************************";
@@ -264,7 +258,7 @@ void baze_de_date::afisare_nume()
                 }
 
         }
-        int an=0;
+        int v[nr_pers]={0};
      cout<<"        NUME        "<<'\t'<<"AN NASTERE"<<'\t'<<"SEXUL"<<endl;
      cout<<"***************************************************"<<endl;
          for(int i=0; i<nr_pers; i++)
@@ -272,10 +266,10 @@ void baze_de_date::afisare_nume()
                 cout<<"      "<<copie[i];
                 for(int j=0;j<nr_pers;j++)
                 {
-                    if(strcmp(a[j].name,copie[i])==0 && (a[j].birth_year!=an||copie[i]!=copie[i-1]))
+                    if(strcmp(a[j].name,copie[i])==0 && v[j]!=1)
                     {
                         cout<<"    "<<a[j].birth_year<<"    "<<"   "<<a[j].gender;
-                        an=a[j].birth_year;
+                        v[j]=1;
                         break;
                         //j=nr_pers;
 
@@ -323,7 +317,17 @@ void baze_de_date::afisare_varsta()
  cout<<endl<<"***************************************************"<<endl;
  }
 
-
+void baze_de_date::spatiere(){
+    char spatiu[30]="                             ";
+         for(int i=0;i<nr_pers;i++)
+     {
+         if(strlen(a[i].name)<20)
+         {
+             int n=20-strlen(a[i].name);
+             strncat(a[i].name,spatiu,n);
+         }
+     }
+}
 
 ///////////////////////////////////
 void menu_output()
@@ -367,6 +371,7 @@ void menu()
             cout<<endl<<"Cate persoane ati dori sa adaugati?"<<endl;
             cin>>n;
             b.adauga_pers(n);
+            b.spatiere();
         }
 
         if (option==3)
