@@ -1,502 +1,422 @@
 #include <iostream>
-#include <math.h>
-#include <stdlib.h>
+#include <utility>
+#include <list>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string>
+#include <vector>
+#include <typeinfo>
+
 using namespace std;
 
+class Masina{
+    protected:
+           string culoare;
+           string marca;
+           static int numara;
+    public:
+          Masina(string cul="",string mar=""){numara++;culoare=cul;marca=mar;}
+          virtual ~Masina(){ culoare="";marca=""; };
+          virtual void citire(istream &in){cout<<"culoare: ";in>>culoare; cout<<"marca: ";in>>marca; }
+          virtual void afisare(ostream &out){out<<"CULOARE: "<<culoare<<"\n"<<"MARCA: "<<marca<<endl; }
+          ///friend istream & operator>>(istream &in, Masina &m);
+          Masina & operator =(const Masina &m){culoare=m.culoare;marca=m.marca; }
+          virtual void model(){cout<<"Masina"; };
+          static int num(){return numara;}
+          virtual void write_type()const{cout<<"Masina";}
+          string get_culoare() const { return culoare;}
+          string get_marca() const{ return marca;}
+          virtual string get_type() const{ return "Masina";}
+};
+int Masina::numara=0;
 
-class Monom{
-    private: int grad;
-             float coef;
-    public: Monom(int g=0, float c=0) { grad=g; coef=c;}
-            ~Monom() { grad=0; coef=0;}
-            Monom(Monom &x) { grad=x.grad; coef=x.coef;}
-            Monom& operator=(Monom &x) {grad=x.grad; coef=x.coef;}
-            friend istream& operator>>(istream &in,Monom &x);
-            friend ostream& operator<<(ostream &out,Monom &y);
-            friend bool operator>(Monom &x, float n);
-            int get_grad(){return grad;}
-            float get_coef(){return coef;}
+class COUPE:public Masina{
+    public:
+        COUPE(string cul="",string mar=""):Masina(cul,mar){ }
+        ~COUPE(){culoare="";marca=""; }
+        void citire(istream &in){ Masina::citire(in);}
+        void afisare(ostream &out){ Masina::afisare(out);}
+        COUPE & operator =(COUPE &C){Masina::operator=(C);}
+        void write_type()const{cout<<"COUPE";}
+        string get_type() const{ return "COUPE";}
+};
+class HOT_HATCH:public Masina{
+    private:
+        string motor;
+    public:
+        HOT_HATCH(string c="",string m="",string ta=""):Masina(c,m){motor=ta;}
+        ~HOT_HATCH(){motor=""; culoare="";marca="";}
+        void citire(istream &in){Masina::citire(in); cout<<"motor: ";in>>motor; }
+        void afisare(ostream &out){Masina::afisare(out);out<<"MOTOR: "<<motor;}
+        HOT_HATCH & operator =(const HOT_HATCH &H){Masina::operator=(H);motor=H.motor;}
+        void write_type()const{cout<<"HOT HATCH";}
+        string get_type() const{ return "HOTHATCH";}
 
 };
+class CABRIO:public Masina{
+    private:
+        string tip_acoperis;
+    public:
+        CABRIO(string c="",string m="",string ta=""):Masina(c,m){tip_acoperis=ta;}
+        ~CABRIO(){tip_acoperis=""; culoare="";marca="";};
+        void citire(istream &in){Masina::citire(in);cout<<"tip acoperis(metalic/textil/altceva): ";in>>tip_acoperis; }
+        void afisare(ostream &out){Masina::afisare(out);out<<"TIPUL ACOPERISULUI: "<<tip_acoperis;}
+        CABRIO & operator =(const CABRIO &C){Masina::operator=(C);tip_acoperis=C.tip_acoperis;}
+        void write_type()const{cout<<"CABRIO";}
+        string get_type() const{ return "CABRIO";}
 
-class Polinom{
-    protected: int nr_monoame;
-             Monom *m;
-             static int n;
-    public: Polinom() {n++; nr_monoame=0; m=new Monom[1]; }//m=NULL;}
-            Polinom(int nr, Monom *x);
-            ~Polinom();
-            Polinom(Polinom &P);
-            Polinom& operator=(Polinom &P);
-            friend istream& operator>>(istream &in,Polinom &x);
-            friend ostream& operator<<(ostream &out,Polinom &y);
-            virtual void citire(istream &in);
-            virtual void afisare(ostream &out);
-            static void nrPolinoame(){cout<<n;}
-            void sortare_grad();
-            int Cmmdc(int n,int *v);
-            virtual void WhereAmI() {cout<<"Polinom";}
-            int Eisenstein(){return 0;};
 
 };
-class Polinom_ireductibil:public Polinom{
-
-    public: Polinom_ireductibil(int nr, Monom *x):Polinom(nr,x){}
-            Polinom_ireductibil():Polinom(){}
-            ~Polinom_ireductibil() {}
-           //Polinom_ireductibil(Polinom_ireductibil& x):Polinom(x){}
-            Polinom_ireductibil& operator=(Polinom_ireductibil &P);
-            friend istream& operator>>(istream &in,Polinom_ireductibil &x);
-            friend ostream& operator<<(ostream &out,Polinom_ireductibil &y);
-            void citire(istream &in);
-            void afisare(ostream &out);
-            int Eisenstein();
-            void WhereAmI(){cout<<"Polinom_ireductibil";}
+class SUPERSPORT:public Masina{
+    private:
+        double pret;
+    public:
+        SUPERSPORT(string c="",string m="",double p=0):Masina(c,m){pret=p;}
+        ~SUPERSPORT(){ pret=0;culoare="";marca="";};
+        SUPERSPORT &operator =(const SUPERSPORT &S){Masina::operator=(S); pret=S.pret;}
+        void citire(istream &in){Masina::citire(in); cout<<"pret in mii(eur): ";in>>pret;}
+        void afisare(ostream &out){Masina::afisare(out);out<<"PRET: "<<pret;}
+        void write_type()const{cout<<"SUPERSPORT";}
+        friend bool operator==(SUPERSPORT &S1,SUPERSPORT &S2)
+        { string s=S1.get_culoare(); string m=S1.get_marca();
+            if(s.compare(S2.get_culoare())==0 && m.compare(S2.get_marca())==0 && S1.pret==S2.pret)
+                return 1;
+            else
+                return 0;
+        }
+        double get_pret(){return pret;}
+        string get_type() const{ return "SUPERSPORT";}
 
 };
-class Polinom_reductibil:public Polinom{
-
-    public:Polinom_reductibil(int nr, Monom *x):Polinom(nr,x){}
-            Polinom_reductibil():Polinom(){}
-            ~Polinom_reductibil() {}
-            //Polinom_reductibil(Polinom_ireductibil& x):Polinom(x){}
-           // Polinom_ireductibil& operator=(Polinom_ireductibil &P);
-            friend istream& operator>>(istream &in,Polinom_reductibil &x);
-            friend ostream& operator<<(ostream &out,Polinom_reductibil &y);
-            void citire(istream &in);
-            void afisare(ostream &out);
-            int Eisenstein();
-            void WhereAmI(){cout<<"Polinom_reductibil";}
-            void afisare_produs();
-};
-///////////
-int Polinom:: n;
-///////////Polinom
-Polinom::Polinom(int nr, Monom *x){n++;
- nr_monoame=nr;
- m=new Monom[nr_monoame];
- for(int i=0;i<nr;i++)
-    m[i]=x[i];
- }
- Polinom::Polinom(Polinom &P){
-     nr_monoame=P.nr_monoame;
-     for(int i=0;i<nr_monoame;i++)
-        m[i]=P.m[i];
- }
-Polinom::~Polinom(){
- //   Monom M[nr_monoame];
-   // for(int i=0;i<nr_monoame;i++)
-     //  m[i]=M[i];
-    delete []m;
-    nr_monoame=0;
-    }
- Polinom& Polinom::operator=(Polinom &P){
-     nr_monoame=P.nr_monoame;
-     for(int i=0;i<nr_monoame;i++)
-        m[i]=P.m[i];
- }
- void Polinom::citire(istream&in){
-    cout<<"Nr de monoame: ";
-     in>>nr_monoame;
-     m=new Monom[nr_monoame];
-     for(int i=0;i<nr_monoame;i++)
-     {
-         cout<<"Monom nr. "<<i+1;
-         in>>m[i];
-     }
- }
- istream& operator>>(istream &in, Polinom &x) {
-  x.citire(in);
-  return in;
- }
- void Polinom::afisare(ostream&out){
-     out<<m[0];
-     for(int i=1;i<nr_monoame;i++)
-      {
-          if(m[i]>0)
-            out<<"+"<<m[i];
-          else
-            out<<m[i];
-      }
- }
- ostream& operator<<(ostream &out, Polinom &x){
-     x.afisare(out);
-     return out;
- }
-void Polinom::sortare_grad(){
-  int i,j;
-  Monom aux;
-    for(i=0;i<nr_monoame-1;i++)
-    {
-      for(j=i;j<nr_monoame;j++)
-       {if(m[i].get_grad()<m[j].get_grad())
-          {aux=m[i];
-           m[i]=m[j];
-           m[j]=aux;
+template<class T> class Expozitie{
+ private: static int nrMasini;
+          int nr;
+          T *masini;
+ public:
+         Expozitie(int n=0, T *p=NULL){
+             nr=n;
+             nrMasini=nrMasini+nr;
+             if(nr!=0)
+             {
+                 masini=new T[nr];
+                 for(int i=0;i<nr;i++)
+                 {
+                     masini[i]=p[i];
+                 }
+             }
           }
 
+        ~Expozitie(){
+          delete []masini;
+          nr=0;
 
-      }
-    }
-}
-//////////// Monom
-istream& operator>>(istream &in, Monom &x){
-    cout<<" grad: ";
-    in>>x.grad;
-    cout<<" coeficient ";
-    in>>x.coef;
-    return in;
-}
-ostream& operator<<(ostream &out, Monom &x){
-    if(x.grad!=0)
-    out<<x.coef<<"X^"<<x.grad;
-    else
-    out<<x.coef;
-    return out;
-}
-bool operator>(Monom &x, float n){
-    return x.coef>n;
-}
-////////////Polinom_ireductibil
-void Polinom_ireductibil::citire(istream &in){
-    cout<<"Clasa Polinom_ireductibil :"<<endl;
-    cout<<"Nr de monoame: ";
-     in>>nr_monoame;
-     m=new Monom[nr_monoame];
-     for(int i=0;i<nr_monoame;i++)
-     {
-         cout<<"Monom nr. "<<i+1;
-         in>>m[i];
-     }
-     try{
-         if(Eisenstein()==0)
-            throw 13;
-        }
-        catch(int x)
-        {
-            cout<<"Polinomul introdus nu este ireductibil";
-            exit(EXIT_FAILURE);
-        }
-}
-void Polinom_ireductibil::afisare(ostream &out){
-        sortare_grad();
-         try{
-         if(Eisenstein()==0)
-            throw 13;
-         if(Eisenstein()==-1)
-                throw 17;
-        }
-        catch(int x)
-        {
-            if(x==13)
-            {out<<"Polinomul introdus nu este ireductibil";
-            exit(EXIT_FAILURE);}
-            else
-            out<<"Polinomul introdus este ireductibil doar in Z"<<endl;
-        }
-        out<<m[0];
-     for(int i=1;i<nr_monoame-1;i++)
-      {
-          if(m[i]>0)
-            out<<"+"<<m[i];
-          else
-            out<<m[i];
-      }
-
-
-            if(m[nr_monoame-1]>0)
-            out<<"+"<<m[nr_monoame-1];
-          else
-            out<<m[nr_monoame-1];
-
-  out<<" - polinom ireductibil";
-      }
-
-Polinom_ireductibil& Polinom_ireductibil::operator=(Polinom_ireductibil &P){
-     nr_monoame=P.nr_monoame;
-     for(int i=0;i<nr_monoame;i++)
-        m[i]=P.m[i];
-}
-istream& operator>>(istream &in,Polinom_ireductibil &x){
-    x.citire(in);
-    return in;
-}
-ostream& operator<<(ostream &out,Polinom_ireductibil &x){
-    x.afisare(out);
-    return out;
-}
-int Polinom_ireductibil::Eisenstein(){
-sortare_grad();
- int w[nr_monoame],copie,i,j,p,c=0;
- int mini=m[nr_monoame].get_grad();
-
- if(mini!=0) return 0;
- //pas 1
- for(i=0;i<nr_monoame;i++)
-    if(m[i].get_coef()<0)
-        w[i]=(int)(m[i].get_coef())*(-1);
-        else
-        w[i]=(int)m[i].get_coef();
- //pas 2
- int minim=w[nr_monoame-1];
-       for(i=2;i<=minim;i++)
-        {c=0;
-            if(minim%i==0 && w[0]%i!=0 && (w[n-1]%(i*i))!=0)
-            {
-                for(j=1;j<nr_monoame;j++)
-                {
-                    if(w[j]%i==0)
-                    {
-                       p=i;
-                       c++;
-                    }
-                }
+         }
+        void citire(istream &in){
+             cout<<"Nr de masini la expozitie: ";
+             in>>nr;
+             nrMasini=nr+nrMasini;
+             masini=new T[nr];
+             cout<<endl;
+             for(int i=0;i<nr;i++)
+             {
+                 cout<<i+1<<". ";
+                 in>>masini[i];
+                 cout<<endl;
+             }
             }
-            if(c==nr_monoame-1)
+        void afisare(ostream &out){
+        for(int i=0;i<nr;i++)
             {
-                 if(Cmmdc(nr_monoame,w)==1)
-                    {
-                        return 1;
-                    }
-                 else return -1;
-
+             out<<"\n"<<masini[i];
             }
-            else return 0;
-        }
 
-
-}
-////////////Polinom_reductibil
-void Polinom_reductibil::citire(istream &in){
-    cout<<"Clasa Polinom_reductibil :"<<endl;
-    cout<<"Nr de monoame: ";
-     in>>nr_monoame;
-     m=new Monom[nr_monoame];
-     for(int i=0;i<nr_monoame;i++)
-     {
-         cout<<"Monom nr. "<<i+1;
-         in>>m[i];
-     }
-     try{
-         if(Eisenstein()==1)
-            throw 13;
-        }
-        catch(int x)
-        {
-            cout<<"Polinomul introdus nu este reductibil";
-            exit(EXIT_FAILURE);
-        }
-
-}
-void Polinom_reductibil::afisare(ostream &out){
-  sortare_grad();
-   try{
-         if(Eisenstein()==1)
-            throw 13;
-        }
-        catch(int x)
-        {
-            cout<<"Polinomul introdus nu este reductibil";
-            exit(EXIT_FAILURE);
-        }
-     out<<m[0];
-     for(int i=1;i<nr_monoame-1;i++)
-      {
-          if(m[i]>0)
-            out<<"+"<<m[i];
-          else
-            out<<m[i];
-      }
-
-
-            if(m[nr_monoame-1]>0)
-            out<<"+"<<m[nr_monoame-1];
-          else
-            out<<m[nr_monoame-1];
-
-  out<<" - polinom reductibil";
-
-}
-istream& operator>>(istream &in,Polinom_reductibil &x){
-    x.citire(in);
-    return in;
-}
-ostream& operator<<(ostream &out,Polinom_reductibil &x){
-    x.afisare(out);
-    return out;
-}
-int Polinom_reductibil::Eisenstein(){
- sortare_grad();
- int w[nr_monoame],copie,i,j,p,c=0;
- int mini=m[nr_monoame-1].get_grad();
- if(mini!=0) return 0;
- //pas 1
- for(i=0;i<nr_monoame;i++)
-    if(m[i].get_coef()<0)
-        w[i]=(int)(m[i].get_coef())*(-1);
-        else
-        w[i]=(int)m[i].get_coef();
- //pas 2
- int minim=w[nr_monoame-1];
-       for(i=2;i<=minim;i++)
-        {c=0;
-            if(minim%i==0 && w[0]%i!=0 && (w[n-1]%(i*i))!=0)
-            {
-                for(j=1;j<nr_monoame;j++)
-                {
-                    if(w[j]%i==0)
-                    {
-                       p=i;
-                       c++;
-                    }
-                }
+         }
+        friend istream& operator>>(istream &in, Expozitie <T> &E){
+             E.citire(in);
+             return in;
+         }
+        friend ostream& operator<<(ostream &out, Expozitie <T> &E){
+                E.afisare(out);
+                return out;
             }
-            if(c==nr_monoame-1)
-            {
-                 if(Cmmdc(nr_monoame,w)==1)
-                    {
-                        return 1;
-                    }
-                 else return -1;
 
-            }
-            else return 0;
-        }
+        Expozitie & operator=(const Expozitie <T> &E){
+             nrMasini=E.nrMasini;
+           for(int i=0;i<nrMasini;i++)
+            masini[i]=E.masini[i];
+         }
+         static void total(){cout<<nrMasini;}
+};
 
-}
-//////////Functii exterioare
-int Polinom::Cmmdc(int n,int *w){
-   int i,minim,cmmdc=w[0];
+template <class T>
+int Expozitie<T>::nrMasini=0;
 
 
-   for(i=1;i<n;i++)
-   {
-       int copie=w[i];
-       while(copie!=cmmdc)
+template <> class Expozitie<SUPERSPORT>{
+  private:
+     static int nrStoc;
+     static int nrVandute;
+     vector <SUPERSPORT> masiniStoc;
+     vector <SUPERSPORT> masiniVandute;
+     vector <pair<SUPERSPORT, double> > evidenta;
+  public:
+      Expozitie(){ }
+      Expozitie(vector <SUPERSPORT> m){
+       nrStoc=nrStoc+m.size();
+       masiniStoc=m;
+       pair<SUPERSPORT, double> p;
+
+       for(int i=0;i<m.size();i++)
        {
-           if(copie>cmmdc)
-           {
-               copie=copie-cmmdc;
-           }
-           else cmmdc=cmmdc-copie;
+           p=make_pair(m[i],-1);
+           evidenta.push_back(p);
        }
-   }
-   return cmmdc;
-}
+      }
+      Expozitie(vector<SUPERSPORT> v1,vector <SUPERSPORT> v2){
+          pair <SUPERSPORT, double> p;
+          p.second=-1;
+          nrStoc=nrStoc+v1.size();
+          nrVandute=nrVandute+v2.size();
+          if(!v1.empty())
+          {
+              for(vector <SUPERSPORT>::iterator i=v1.begin();i!=v1.end();++i)
+              {
+                  masiniStoc.push_back(*i);
+                  p.first=(*i);
+                  evidenta.push_back(p);
+              }
 
-void Polinom_reductibil::afisare_produs()
-{
-    sortare_grad();
-    int grad_max=m[0].get_grad(),p,grad_min=m[nr_monoame-1].get_grad();
-    int w[grad_max],v[grad_max-1],i;
-    w[grad_max-1]=grad_max;
+          }
+          if(!v2.empty())
+          {
+              for(vector <SUPERSPORT>::iterator i=v2.begin();i!=v2.end();++i)
+              {
+                  masiniVandute.push_back(*i);
+                  p.second=i->get_pret();
+                  p.first=(*i);
+                  evidenta.push_back(p);
+              }
+          }
+      }
+      ~Expozitie(){
+        masiniStoc.clear();
+        masiniVandute.clear();
+        evidenta.clear();
+      }
+      static void nrV(){cout<<nrVandute;}
+      static void nrS(){cout<<nrStoc;}
+      void citire(istream &in){
+          pair <SUPERSPORT, double> p;
+          int nr1,nr2;
+          SUPERSPORT s1,s2;
+          cout<<"Nr masini in stoc: ";
+          in>>nr1;
+          p.second=-1;
+          cout<<"\nIntorduceti pe rand masinile din stoc: ";
+          for(int i=0;i<nr1;i++)
+          {
+              s1.citire(in);
+              p.first=s1;
+              evidenta.push_back(p);
+              masiniStoc.push_back(s1);
+          }
 
-    for(i=0;i<grad_max-1;i++)
-        {w[i]=0; v[i]=0;}
-    for(i=1;i<nr_monoame;i++)
-        w[m[i].get_grad()]=m[i].get_coef();
-    v[grad_max-1]=w[grad_max-1];
-    int sum=0;
-    for(i=0;i<m[nr_monoame-1].get_coef;i++)
-    { sum=0;
-        if(m[nr_monoame-1].get_coef%i==0)
-        {
-            for(int j=0;j<nr_monoame;j++)
+          cout<<"\Nr masini vandute: ";
+          in>>nr2;
+          cout<<"\nIntorduceti pe rand masinile din stoc: ";
+          for(int i=0;i<nr2;i++)
+          {
+              s2.citire(in);
+              p.second=s2.get_pret();
+              p.first=s2;
+              masiniVandute.push_back(s2);
+          }
+      }
+      void afisare(ostream &out){
+          out<<"\nSTOC :\n";int j=0;
+          for(vector<SUPERSPORT>::iterator i=masiniStoc.begin();i!=masiniStoc.end();++i)
+            {   j++;
+               out<<j<<") "; (*i).afisare(out); out<<"\n";
+
+            }
+         if(masiniVandute.size())
+        {   out<<"\nVANDUTE: \n"; j=0; int k;
+            for(vector <SUPERSPORT>::iterator i=masiniVandute.begin();i!=masiniVandute.end();++i)
             {
-                sum=sum+m[j].get_coef()*pow(i,m[j].get_grad());
-            }
-          if(sum==0)
-                p=i;
-        }
-    }
-    for(i=grad_max-2;i>=0;i--)
-    {
-        v[i]=p*v[i+1]+w[i];
-    }
+               out<<j+1<<") "; (*i).afisare(out);
+               for(k=0;k<(masiniStoc.size()+masiniVandute.size());k++)
+               {
+                   if(evidenta[k].first==(*i))
+                    {
+                        break;
+                    }
+               }
+               out<<"\nPretul de vanzare: "<<evidenta[k].second;
+               out<<"\n";
+               j++;
 
-    if(grad_min==0)
-    {
-        if(p<0)
-        cout<<"(X+"<<p*(-1)<<")("<<v[grad_max-1]<<"X^"<<grad_max-1;
-        else
-            cout<<"(X"<<p*(-1)<<")("<<v[grad_max-1]<<"X^"<<grad_max-1;
-        for(i=grad_max-2;i>=0;i--)
-            if(v[i]>0)
-              cout<<"+"<<v[i]<<"X^"<<i-1;
-            else
-              cout<<v[i]<<"X^"<<i-1;
-            cout<<")";
-    }
-    else
-    {
-        cout<<"X("<<m[0].get_coef()<<"X^"<<m[0].get_grad()-1;
-        for(i=1;i<nr_monoame;i++)
-            if(m[i].get_coef()>0)
-              cout<<"+"<<m[i].get_coef()<<"X^"<<m[i].get_grad()-1;
-            else
-              cout<<m[i].get_coef()<<"X^"<<m[i].get_grad()-1;
-            cout<<")";
-    }
-
-}
-///////////
-void tip(Polinom *&P, int &i) {
-    string s;
-    cout<<"\n";
-    cout<<"Introduceti tipul polinomului(P/Pi/Pr) "<<i+1<<": ";
-    cin>>s;
-    try{
-        if(s=="P"){
-                P=new Polinom;
-                cin>>*P;
-                i++;
-        }
-        else
-            if(s=="Pi"){
-                P=new Polinom_ireductibil;
-                cin>>*P;
-                i++;
             }
-            else
-                if (s=="Pr"){
-                    P=new Polinom_ireductibil;
-                    cin>>*P;
+        }
+      }
+      Expozitie &operator=(Expozitie <SUPERSPORT> &G){
+          for(vector <SUPERSPORT>::iterator i=(G.masiniStoc).begin();i!=(G.masiniStoc).end();++i)
+          {
+              masiniStoc.push_back(*i);
+
+          }
+          for(vector <SUPERSPORT>::iterator i=(G.masiniVandute).begin();i!=(G.masiniVandute).end();++i)
+          {
+              masiniVandute.push_back(*i);
+
+
+          }
+          evidenta=G.evidenta;
+    }
+      Expozitie& operator-=(const int nr){
+        if(nr<masiniStoc.size()){
+        SUPERSPORT S=masiniStoc[nr];
+        vector <SUPERSPORT>::iterator i;int n,ok=0; int ask=0;
+        pair <SUPERSPORT,double> p;
+        do{
+          for(i=masiniStoc.begin();i!=masiniStoc.end();++i)
+           {
+              if(*i==S)
+              {
+
+                  cout<<"Valoarea masinii este de "<<i->get_pret();
+                  cout<<"\nDoriti sa o vindeti cu alt pret? (1-Da/0-Nu)";
+                  cin>>ask;
+                  if(ask==1)
+                  {
+                      double bani;
+                      cout<<"\nIntroduceti noul pret in mii: "; cin>>bani;
+                      p=make_pair((*i),bani);
+                  }
+                  else
+                  p=make_pair((*i),(i->get_pret()));
+
+                  for(int j=0;j<(masiniStoc.size()+masiniVandute.size());j++)
+                  {  if(evidenta[j].first==(*i))
+                      {
+                          evidenta[j]=p;
+                       cout<<"Masina vanduta! :)";
+                       ok=1;
+                       masiniVandute.push_back(*i);
+
+                       nrStoc--;
+                       nrVandute++;
+                       masiniStoc.erase(i);
+                       return (*this);
+                       }
+                  }
+              }
+           }
+           }while(ok==0);
+      }
+      }
+
+      friend istream& operator>>(istream &in, Expozitie <SUPERSPORT> &E){
+             E.citire(in);
+             return in;
+         }
+      friend ostream& operator<<(ostream &out, Expozitie <SUPERSPORT> &E){
+                E.afisare(out);
+                return out;
+            }
+};
+template <>
+int Expozitie<SUPERSPORT>::nrStoc=0;
+int Expozitie<SUPERSPORT>::nrVandute=0;
+
+
+
+/////////
+////////////
+//////////////citire/afisare
+istream & operator>>(istream &in, Masina &m)
+ {m.citire(in); return in;}
+
+ostream & operator<<(ostream &out,Masina &m)
+ {m.afisare(out); return out;}
+
+ istream & operator>>(istream &in,SUPERSPORT &m)
+ {m.citire(in); return in;}
+
+ostream & operator<<(ostream &out,SUPERSPORT &m)
+ {m.afisare(out); return out;}
+
+ //////////////////
+ ///////////
+ //////
+
+ void tip(Masina *&m, int &i){
+     string s;
+     cout<<"\n(COUPE/HOTHATCH/CABRIO/SUPERSPORT):";
+     cout<<"Model nr. "<<i+1<<": ";
+     cin>>s;
+
+     try{
+         if(s=="COUPE"){
+
+            m=new COUPE;
+            cin>>*m;
+            i++;
+         }
+         else{
+             if(s=="HOTHATCH"){
+                    m=new HOT_HATCH;
+                    cin>>*m;
                     i++;
                 }
-                else
-                    throw 10;
-    }
-    catch (bad_alloc var){
-        cout << "Allocation Failure\n";
-        exit(EXIT_FAILURE);
-    }
-    catch(int j){
-        cout<<"Nu ati introdus un post valid. Incercati P,Pr,Pi.\n ";
-    }
-}
+            else{
+                if(s=="CABRIO"){
+                       m=new CABRIO;
+                       cin>>*m;
+                       i++;
+                    }
+                else{
+                    if(s=="SUPERSPORT"){
+                            m=new SUPERSPORT;
+                            cin>>*m;
+                            i++;
 
-///////////
-void menu_output()
-{
-    printf("\n FLOREA ANA 211 - Proiect 2- TEMA 13 \n");
+                        }
+                    else{
+                        throw 10;
+                    }
+                }
+
+            }
+         }
+       }
+       catch(bad_alloc bad){
+        cout<<"Allocation failure";
+        exit(EXIT_FAILURE);
+       }
+       catch(int n){
+        cout<<"Nu exista acest model\n";
+       }
+ }
+ void menu_output(){
+    printf("\n FLOREA ANA 211 - Proiect 3- TEMA 5 \n");
     printf("\n\t MENIU:");
     printf("\n===========================================\n");
     printf("\n");
-    cout<<"1.Introduceti un polinom(polinom/polinom_ireductibil/polinom_ireductibil"<<endl;
-    cout<<"2.Afisati toate polinoamele"<<endl;
-    cout<<"3.Afisati polinoamele reductibile ca produs de 2 polinoame"<<endl;
-    cout<<"4.Downcast"<<endl;
-    cout<<"0.Iesire. "<<endl;
+    cout<<"1. Citeste modele"<<endl;
+    cout<<"2. Expoztitie de COUPE"<<endl;
+    cout<<"3. Expozitie de HOT HATCH"<<endl;
+    cout<<"4. Expozitie de CABRIO"<<endl;
+    cout<<"5. Expozitie de SUPERSPORT "<<endl;
+    cout<<"6. Vinde masina SUPERSPORT"<<endl;
+    cout<<"7. Expozitie SUPERSPORT actuala"<<endl;
+    cout<<"8. Afiseaza toate modelele de masini"<<endl;
+    cout<<"0. Iesire"<<endl;
     cout<<"\n===========================================\n"<<endl;
 }
-
-void menu()
-{
-    int option=0;
-    Polinom **v;
-    int n;
+void menu(){
+    int option=0,k,n,i,unic=0,u[4];
+    Masina **M;
+    Expozitie <SUPERSPORT>E2;
 
     do
     {
@@ -508,137 +428,183 @@ void menu()
 
         if (option==1)
         {
-          cout<<"Introduceti numarul de polinoame citite: ";
-          cin>>n;
-
-    try{
-        v=new Polinom*[n];
-        for(int i=0;i<n;)
-            tip(v[i],i);
-
-        }
-    catch (bad_alloc var){
-        cout<<"Numarul introdus trebuie sa fie pozitiv. Bad Alloc!\n";
-        exit(EXIT_FAILURE);
-    }
-
+            cout<<"Intorduceti nr de modele: ";
+            cin>>n;
+            try{
+                M=new Masina*[n];
+            }
+            catch(bad_alloc bad)
+            {
+                cout<<"Allocation faliure"; exit(EXIT_FAILURE);
+            }
+            for(i=0;i<n; )
+             tip(M[i],i);
+         for(i=0;i<4;i++) u[i]=0;
+        // if(u[3]!=0){ E2.~Expozitie(); u[3]=0;}
         }
 
         if (option==2)
         {
-        for(int i=0;i<n;i++){
-            cout<<"\n";
-            cout<<*v[i]<<" ";
-            v[i]->WhereAmI();}}
-        if (option==3)
-        {
-         int ind;
-         cout<<endl<<"Alegeti un polinom reductibil : ";
-         cin>>ind;
-         while(v[ind-1]->Eisenstein()!=0)
-         {
-             cout<<"Introduceti un polinom reductibil valid";
-             cin>>ind;
+            if(u[option-2]==0){
+            k=0;
+            for(i=0;i<n;i++)
+              if(M[i]->get_type()=="COUPE") k++;
+
+            if(k!=0)
+            {COUPE c[k]; COUPE *adr;
+            k=0;
+            for(i=0;i<n;i++)
+            {
+                adr=dynamic_cast <COUPE*> (M[i]);
+
+              if(adr){
+                    c[k]=*adr;
+                    k++;
+              }
+            }
+             Expozitie <COUPE> ExpCOUPE(k,c);
+            cout<<"Expozitie COUPE:\n-------------------";
+            cout<<endl<<ExpCOUPE;
+            }
+            else {cout<<"Nu exista nicio masina la aceasta expozitie";}
+
+            u[option-2]=1;
+            }
+            else cout<<"Deja citita";
+
+
+        }
+
+        if (option==3){
+          if(u[option-2]==0){
+         k=0;
+         for(i=0;i<n;i++)
+           if(M[i]->get_type()=="HOTHATCH") k++;
+           if(k!=0)
+            {HOT_HATCH c[k]; HOT_HATCH *adr;
+            k=0;
+            for(i=0;i<n;i++)
+            {
+                adr=dynamic_cast <HOT_HATCH*> (M[i]);
+
+                if(adr){ c[k]=*adr; k++;}
+            }
+
+            Expozitie <HOT_HATCH> ExpHOT(k,c);
+            cout<<"Expozitie HOT HATCH:\n-------------------";
+            cout<<endl<<ExpHOT;
+            }
+            else {cout<<"Nu exista nicio masina la aceasta expozitie";}
+           u[option-2]=1;
+          }
+          else cout<<"Deja citita";
+
          }
-         //v[ind-1]->afisare_produs();
+
+
+        if(option==4){
+         if(u[option-2]==0){
+         k=0;
+         for(i=0;i<n;i++)
+           if(M[i]->get_type()=="CABRIO") k++;
+           if(k!=0){
+            CABRIO c[k]; CABRIO *adr;
+            k=0;
+            for(i=0;i<n;i++)
+            {
+                adr=dynamic_cast <CABRIO*> (M[i]);
+
+                if(adr){ c[k]=*adr; k++;}
+            }
+
+            Expozitie <CABRIO> ExpCABRIO(k,c);
+            cout<<"Expozitie CABRIO:\n-------------------";
+            cout<<endl<<ExpCABRIO;
+           }
+           else {cout<<"Nu exista nicio masina la aceasta expozitie";}
+           u[option-2]=1;
+         }
+         else cout<<"Deja citita";
+
         }
-        if(option==4)
+
+
+        if(option==5){
+            if(u[option-2]==0){
+              vector <SUPERSPORT> c;
+
+            SUPERSPORT *adr;
+            k=0;
+            for(i=0;i<n;i++)
+            {
+                adr=dynamic_cast <SUPERSPORT*> (M[i]);
+                 if(adr){ c.push_back(*adr); k++;}
+            }
+            if(k!=0)
+            {Expozitie <SUPERSPORT> ExpSS(c);
+            E2=ExpSS;
+            unic=1;
+            cout<<"Expozitie SUPERSPORT:\n-------------------";
+            cout<<endl<<ExpSS;}
+            else {cout<<"Nu exista nicio masina la aceasta expozitie";}
+            u[option-2]=1;
+          }
+          else cout<<"Expozitia a fost deja creata o data";
+        }
+
+        if(option==6){
+        cout<<"Expozitia SUPERSPORT \n---------------------------\n";
+        cout<<E2;
+        if(unic==1)
+        {int nr;
+        cout<<"Ce masina supersport se vinde? Introduceti indicele: ";
+        cin>>nr;
+        nr--;
+        E2-=nr;
+        }
+        else cout<<"\nNu ati creat inca expozitia SUPERSPORT. (optiunea 5)";
+        }
+
+        if(option==7)
         {
-            int op,ind;
-            cout<<"Polinom_ireductibil -> Polinom (1)";
-            cout<<endl<<"Polinom_reductibil -> Polinom (2)";
-            cin>>op;
+            cout<<E2;
+            cout<<endl;
+            cout<<"S-au vandut: ";  Expozitie <SUPERSPORT>::nrV();
+            cout<<"\nMai sunt: ";   Expozitie <SUPERSPORT>::nrS();
+        }
 
-            if(op==1)
+        if(option==8)
+        {
+            for(i=0;i<n;i++)
             {
-                v[n]=new Polinom_ireductibil;
-                v[n]->WhereAmI();
-                v[n]=(Polinom_ireductibil*)new Polinom;
-                v[n]->WhereAmI();
+                cout<<i+1<<". "<<M[i]->get_type()<<"\n------------\n";
+                cout<<*M[i];
+                cout<<endl<<"---------------------";
+                cout<<endl;
 
             }
-            if(op==2)
-            {
-                v[n]=new Polinom_reductibil;
-                v[n]->WhereAmI();
-                v[n]=(Polinom_reductibil*)new Polinom;
-                v[n]->WhereAmI();
 
-            }
+
 
         }
+
         if (option==0)
         {
             cout<<endl<<"~~EXITING~~"<<endl;
         }
-        if (option<0||option>3)
+        if (option<0||option>8)
         {
             printf("\nSelectie invalida\n");
         }
         cout<<endl;
-        system("pause"); ///Pauza - Press any key to continue...
-        system("cls");   ///Sterge continutul curent al consolei
+        system("pause");
+        system("cls");
     }
     while(option!=0);
-
-
 }
 
-
-
-
-////////////
 int main()
 {
     menu();
-  /* Monom F(0,2),G(1,-4),H(2,6),J(3,-7);
-   Monom I[4];
-   I[0]=F;I[1]=G;I[2]=H;I[3]=J;
-   Polinom X(4,I);
-
-   Polinom_ireductibil IR(4,I);*/
-   /*Monom K[3];
-   Monom A(0,4),B(1,-4),C(2,1);
-   K[0]=A;K[1]=B;K[2]=C;
-   Polinom_reductibil RE(3,K);
-   cout<<IRE<<endl;
-   cout<<RE; */
-/*
-   Polinom_ireductibil *IRE=new Polinom_ireductibil;
-   cin>>*IRE;
-   Polinom::nrPolinoame();
-   cout<<endl;
-   IRE->WhereAmI();
-
-   IRE=(Polinom_ireductibil*)new Polinom;
-   *IRE=IR;
-   Polinom::nrPolinoame();
-   IRE->WhereAmI();
-   cout<<*IRE; */
-   //Polinom_reductibil *IRE=(Polinom_reductibil*)new Polinom;
-    //cin>>*IRE;
-   //IRE->WhereAmI();
-   //cout<<endl;
-   //
-   //cout<<*IRE;
-   // cin>>G;
-   // cout<<" G= "<<G;
-   // cout<<" F= "<<F;
-   // cout<<" H= "<<H; */
-  //Monom I[3];
-  // I[0]=F; I[1]=G; I[2]=H;
-   //cout<<I[0]<<"+"<<I[1]<<"-"<<I[2];
-    /*Polinom P(3,I);
-    cout<<P;
-    P.sortare_grad();
-    cout<<endl<<P; */
-   // Polinom_reductibil Pr;
-    //Polinom_ireductibil Pi;
-    //Polinom::nrPolinoame();
-   //Polinom Q;
-  // cin>>Q;
-   //    cout<<Q;
-   // cout<<P;
-
     return 0;
 }
